@@ -12,6 +12,22 @@ del Laboratorio 3. Repositorio acumulativo del Secure Product Challenge (FDSI).
 - ☐ Hardening aplicado y retest ejecutado
 - ☐ Tag `lab-3` creado
 
+
+## Herramientas del laboratorio (qué son y para qué sirven)
+
+| Herramienta | Para qué sirve | ¿Se descarga aparte? |
+|---|---|---|
+| **Kali Linux** | Distribución de Linux con decenas de herramientas de seguridad ofensiva preinstaladas (Nmap, ZAP, Wireshark, etc.). Actúa como la "máquina atacante" del Red Team. | Normalmente ya viene provisionada en la sala. Si no, se descarga como VM/ISO desde kali.org. |
+| **Ubuntu Server LTS** | Sistema operativo del servidor que aloja la aplicación web. "LTS" significa soporte extendido y estabilidad. | Normalmente ya viene provisionada en la sala como VM o instancia en la nube. |
+| **Nginx** | Servidor web que recibe las peticiones HTTP y entrega el contenido del sitio (`index.html`, etc.). Es el software que realmente "publica" la aplicación. | No, se instala con `apt install nginx` desde los repositorios oficiales de Ubuntu. |
+| **Nmap** | Escáner de puertos y servicios: indica qué puertos están abiertos en una IP y qué software corre en ellos. Es la herramienta clásica de reconocimiento de red. | Viene preinstalado en Kali; si no, `apt install nmap`. |
+| **curl** | Cliente de línea de comandos para hacer peticiones HTTP manualmente y ver headers, código de respuesta y contenido, sin usar un navegador. | No, viene preinstalado en casi cualquier Linux/Mac/Windows moderno. |
+| **tcpdump** | Captura tráfico de red en crudo desde la línea de comandos y lo guarda en un archivo `.pcap`. Se usa en el servidor (Blue Team) para registrar qué pasa por la red. | No, viene preinstalado en la mayoría de distros Linux, o `apt install tcpdump`. |
+| **Wireshark** | Interfaz gráfica para analizar los archivos `.pcap` generados por tcpdump, con filtros (como `http`) para inspeccionar el contenido de cada paquete. | Se descarga desde wireshark.org, o viene preinstalado en Kali. |
+| **OWASP ZAP** | Herramienta de pruebas de seguridad para aplicaciones web. En este laboratorio se usa en modo pasivo (sin ataques activos): navega el sitio y reporta headers de seguridad faltantes, tecnologías detectadas, etc. | Viene preinstalado en Kali, o se descarga desde zaproxy.org. |
+| **access.log / error.log** | Archivos de registro que Nginx genera automáticamente por cada petición (quién, cuándo, qué pidió, qué código de respuesta recibió). Es la evidencia principal del Blue Team. | No se descargan; existen por defecto en `/var/log/nginx/` una vez instalado Nginx. |
+
+
 ## Arquitectura
 ```
 Usuario/Kali → Red del laboratorio (LAB_CIDR) → Nginx (puerto 80) → /var/www/muvautomation
