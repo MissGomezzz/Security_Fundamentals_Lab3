@@ -1,0 +1,4 @@
+# Inventario público de demostración (datos ficticios - solo para el laboratorio)
+WEB-LAB-01
+API-LAB-01
+DB-LAB-01

@@ -1,0 +1,32 @@
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Variables de entorno locales (nunca subir IP/credenciales reales del entorno del docente)
+.env
+*.env.local
+
+# Salidas grandes o temporales que no deben versionarse tal cual
+# (los PCAP/nmap/zap "oficiales" que sí son evidencia van filtrados y con nombre
+#  explícito dentro de evidence/, no aquí; esto es solo para basura temporal)
+*.tmp
+*.log.bak
+/tmp/
+
+# Reportes ZAP en formato de sesión (pesados); conservar solo el export HTML/JSON final
+*.zap.session/
+*.session
+
+# Capturas de red completas sin filtrar (guardar solo las filtradas dentro de evidence/blue)
+*-full.pcap
+*-unfiltered.pcap
+
+# Node/Python si el docente pide tooling auxiliar (no aplica a este lab, pero por si acaso)
+node_modules/
+__pycache__/
+*.pyc
