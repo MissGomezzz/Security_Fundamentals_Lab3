@@ -1,0 +1,23 @@
+{
+  "name": "alerts-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API REST pública de alertas ficticias inspirada en CrowdStrike Falcon Alerts.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "seed": "node seed.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "audit-service": "1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.13.1"
+  }
+}

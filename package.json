@@ -1,0 +1,21 @@
+{
+  "name": "muvautomation-secure-challenge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MVP académico: simulación de automatización de incidentes (datos ficticios). Laboratorio 3 — Secure Product Challenge.",
+  "workspaces": [
+    "app/web-frontend",
+    "app/alerts-api",
+    "app/audit-service"
+  ],
+  "scripts": {
+    "start": "npm run start --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:web": "npm run dev -w web-frontend",
+    "dev:api": "npm run dev -w alerts-api",
+    "seed": "npm run seed -w alerts-api"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

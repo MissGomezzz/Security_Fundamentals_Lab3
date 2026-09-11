@@ -10,6 +10,7 @@ Thumbs.db
 # Variables de entorno locales (nunca subir IP/credenciales reales del entorno del docente)
 .env
 *.env.local
+.env.example
 
 # Salidas grandes o temporales que no deben versionarse tal cual
 # (los PCAP/nmap/zap "oficiales" que sí son evidencia van filtrados y con nombre
@@ -26,7 +27,15 @@ Thumbs.db
 *-full.pcap
 *-unfiltered.pcap
 
-# Node/Python si el docente pide tooling auxiliar (no aplica a este lab, pero por si acaso)
+# Node
 node_modules/
+npm-debug.log*
+
+# Logs de aplicación (se generan en runtime; evidencia filtrada va a evidence/blue)
+logs/*.log
+*.log
+!evidence/**/*.log
+
+# Python
 __pycache__/
 *.pyc

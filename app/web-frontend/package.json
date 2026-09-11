@@ -1,0 +1,18 @@
+{
+  "name": "web-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dashboard HTTP de alertas ficticias (sin autenticación, Lab 3).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "morgan": "^1.10.0"
+  }
+}
