@@ -54,7 +54,7 @@ risk-register.md
    cp .env.example .env
    ```
 
-   En Windows PowerShell, usar `Copy-Item .env.example .env`.
+   En Windows PowerShell, usar `Copy-Item .env.example .env` y, si se usa el `docker-compose.yml` incluido, cambiar localmente `DB_PASSWORD` a `postgres` para coincidir con la contraseña ficticia del contenedor. Nunca reutilizar ese valor fuera del desarrollo local.
 
 2. Crear la base de datos `muvautomation_lab3` y cargar el esquema y datos ficticios:
 
@@ -72,7 +72,7 @@ risk-register.md
    npm run dev:web
    ```
 
-   El API queda en `http://127.0.0.1:3001` y el frontend en `http://127.0.0.1:3000`. El frontend consume rutas relativas `/api/*`; para una experiencia integrada use Nginx o un proxy local.
+   El API queda en `http://127.0.0.1:3001` y el frontend en `http://127.0.0.1:3000`. El frontend consume rutas relativas `/api/*` y su servidor incluye un proxy local hacia `alerts-api`; Nginx se usa para la publicación integrada por HTTP.
 
 4. Comprobar el API:
 
