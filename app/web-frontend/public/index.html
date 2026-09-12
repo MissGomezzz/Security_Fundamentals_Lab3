@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MuvAutomation | Alert Operations</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">M</span><div><strong>MuvAutomation</strong><small>SECURE CHALLENGE / LAB 03</small></div></div>
+    <div class="connection"><span class="pulse"></span>PUBLIC API · FICTIONAL DATA</div>
+  </header>
+  <main class="shell">
+    <section class="intro">
+      <div><p class="eyebrow">Incident operations</p><h1>Alert console</h1><p class="lede">A focused view of simulated Falcon-style detections across the lab estate.</p></div>
+      <button class="refresh" id="refreshButton" type="button" title="Actualizar alertas"><span>↻</span> Refresh</button>
+    </section>
+    <section class="metrics" aria-label="Resumen de alertas">
+      <div class="metric"><span>Total loaded</span><strong id="totalMetric">--</strong><small>latest API response</small></div>
+      <div class="metric critical"><span>Critical</span><strong id="criticalMetric">--</strong><small>requires triage</small></div>
+      <div class="metric high"><span>High</span><strong id="highMetric">--</strong><small>priority queue</small></div>
+      <div class="metric open"><span>Open cases</span><strong id="openMetric">--</strong><small>new + in progress</small></div>
+    </section>
+    <section class="workspace">
+      <div class="list-panel">
+        <div class="panel-heading"><div><p class="eyebrow">Detection stream</p><h2>Alerts</h2></div><span class="count" id="resultCount">0 records</span></div>
+        <div class="filters">
+          <label>Severity<select id="severityFilter"><option value="">All severities</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></label>
+          <label>Status<select id="statusFilter"><option value="">All statuses</option><option value="new">New</option><option value="in_progress">In progress</option><option value="closed">Closed</option></select></label>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Severity</th><th>Alert</th><th>Host</th><th>Tactic</th><th>Status</th><th>Created</th></tr></thead><tbody id="alertRows"><tr><td colspan="6" class="empty">Loading alert stream...</td></tr></tbody></table></div>
+      </div>
+      <aside class="detail-panel" id="detailPanel"><div class="empty-detail"><span>◎</span><h2>Select an alert</h2><p>Choose a detection to inspect its simulated Falcon-style fields.</p></div></aside>
+    </section>
+  </main>
+  <footer><span>LAB 03 / HTTP baseline</span><span>All records are fictional and simplified for academic use.</span></footer>
+  <script src="/app.js"></script>
+</body>
+</html>
