@@ -10,7 +10,7 @@ Thumbs.db
 # Variables de entorno locales (nunca subir IP/credenciales reales del entorno del docente)
 .env
 *.env.local
-.env.example
+!.env.example
 
 # Salidas grandes o temporales que no deben versionarse tal cual
 # (los PCAP/nmap/zap "oficiales" que sí son evidencia van filtrados y con nombre
