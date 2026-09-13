@@ -1,26 +1,84 @@
 # muvautomation-secure-challenge
 
-MVP académico para **Secure Product Challenge - Lab 3**. Simula la automatización de incidentes de CrowdStrike Falcon con datos completamente ficticios, sin conexión a CrowdStrike ni a servicios externos reales.
+## Integrantes
+- María Belén Quintero Aldana
+- Ángela Sofía Gómez Valencia 
 
-## Propósito y alcance
+---
 
-La aplicación publica una línea base intencionalmente insegura por HTTP plano y sin autenticación. El objetivo es que los equipos Red Team y Blue Team puedan observar peticiones, respuestas y logs durante el laboratorio. HTTPS, autenticación y rate limiting quedan para el Laboratorio 4.
+## Descripción del proyecto: 
+
+**Problema seleccionado**: MVP académico para **Secure Product Challenge - Lab 3**. Simula la automatización de incidentes de CrowdStrike Falcon con datos completamente ficticios, sin conexión a CrowdStrike ni a servicios externos reales.
+
+**Objetivo**: 
+
+**Usuarios previstos**: Inicialmente serían el Red y Blue Team, pues estos tendrán que operar sobre acciones ofensivas y defensivas a nivel de seguridad sobre la API. 
+
+**Datos fictios utilizados**: 
+
+**Alcance y exclusiones**: La aplicación publica una línea base intencionalmente insegura por HTTP plano y sin autenticación. El objetivo es que los equipos Red Team y Blue Team puedan observar peticiones, respuestas y logs durante el laboratorio. HTTPS, autenticación y rate limiting quedan para el Laboratorio 4.
+
 
 La ruta de agregación imita la idea de `POST /alerts/aggregates/alerts/v1`, pero el endpoint local es `POST /api/alerts/aggregates` y solo consulta datos de esta base ficticia.
 
-## Arquitectura
+**Resultados del despliegue 1era entrega**: Una aplicación web funcional estática manejada por microservicios, corriendo desde una máquina Ubuntu de forma temporal mientras se obtiene un espacio en la nube (manejado por el profesor) para realizar el despligue para uso público. La información de la API estará disponible en una base de datos PostgreSQL. 
+
+## Arquitectura implementada inicial
 
 ```mermaid
 flowchart LR
-    user((Usuario anónimo)) -->|HTTP :80| nginx["Nginx\nproxy + access.log/error.log"]
-    nginx -->|HTML/CSS/JS| web["web-frontend\nExpress :3000"]
-    web -->|fetch /api/*| api["alerts-api\nREST :3001\napp.log JSONL"]
-    api --> audit["audit-service\nmódulo en el mismo proceso"]
-    api -->|SQL| db[(PostgreSQL)]
-    audit -->|audit_log| db
+    %% ==== Actores ====
+    redteam(("Red Team\n(atacante)")):::actor
+    blueteam(("Blue Team\n(analista)")):::actor
+
+    subgraph TB1["Zona no confiable — Internet / LAB_CIDR"]
+        redteam
+        blueteam
+    end
+
+    subgraph TB2["DMZ — host Ubuntu, único puerto expuesto"]
+        nginx["nginx\nproxy inverso\n:80/tcp HTTP"]
+    end
+
+    subgraph TB3["Red interna — Docker, sin exposición directa a Internet"]
+        web["web-frontend\nExpress :3000/tcp"]
+        api["alerts-api\nREST :3001/tcp"]
+        audit["audit-service\nmódulo interno de alerts-api"]
+        db[("PostgreSQL :5432/tcp\ntablas: alerts, audit_log")]
+    end
+
+    %% ==== Flujos de datos principales (numerados) ====
+    redteam  -->|"1 · HTTP :80\nGET/POST/PATCH sin auth"| nginx
+    blueteam -->|"2 · HTTP :80\nGET/POST/PATCH sin auth"| nginx
+    nginx    -->|"3 · HTTP interno :3000\nHTML/CSS/JS"| web
+    web      -->|"4 · fetch /api/* :3001\nJSON sobre HTTP"| api
+    api      -->|"5 · llamada interna\n(mismo proceso)"| audit
+    api      -->|"6 · SQL :5432"| db
+    audit    -->|"7 · INSERT audit_log\nSQL :5432"| db
+
+    %% ==== Puntos de generación de logs ====
+    accesslog[("access.log /\nerror.log")]:::logstore
+    applog[("app.log\nJSONL")]:::logstore
+
+    nginx -.->|"8 · log de cada request"| accesslog
+    api   -.->|"9 · log de cada operación"| applog
+
+    classDef actor fill:#F5C4B3,stroke:#993C1D,color:#4A1B0C;
+    classDef logstore fill:#FAC775,stroke:#854F0B,color:#412402;
 ```
 
-El diagrama editable está en [diagrams/architecture.md](diagrams/architecture.md). El límite de confianza de red está entre el usuario y Nginx; el límite de aplicación está entre Nginx/frontend y los servicios internos. Nginx genera los logs de acceso y error. `alerts-api` genera `app/alerts-api/logs/app.log` en JSON Lines.
+En el diagrama es posible identificar los siguientes elementos: 
+
+- Actores.
+- Componentes.
+- Flujos de datos.
+- Protocolo.
+- Puertos.
+- Almacenes de datos.
+- Límites de confianza.
+- Punto de generación de logs.
+
+
 
 ## Estructura
 
@@ -140,11 +198,8 @@ Estas limitaciones son intencionales y forman parte del Lab 3:
 
 Las mitigaciones de HTTPS y autenticación se implementarán en el Laboratorio 4. No usar este prototipo con datos personales, tokens, API keys o credenciales reales.
 
-## Integrantes
 
-- Equipo del laboratorio: completar nombres y roles antes de la entrega.
-
-## Commits de evidencia
+## Evidencias de ejecución local 
 
 Los cambios del MVP se organizan en commits pequeños por slice funcional. Verificar la historia con:
 
@@ -152,6 +207,44 @@ Los cambios del MVP se organizan en commits pequeños por slice funcional. Verif
 git log --oneline --decorate -n 10
 ```
 
+Capturas y comandos verificables:
+
+git status git log --oneline -5 find . -maxdepth 3 -type f python3 -m http.server 8080 curl -I http://localhost:8080 curl http://localhost:8080
+Deben demostrar:
+
+- Que el repositorio fue clonado.
+- Que index.html existe.
+- Que la página funciona localmente.
+- Qué commit contiene la versión evaluada.
+- Código HTTP obtenido.
+- Fecha y hora de las pruebas.
+
+
+## Evidencias del servidor y Ngnix
+
+hostname whoami pwd nginx -v systemctl status nginx --no-pager sudo nginx -t curl -I http://localhost
+Además:
+
+- Captura del navegador.
+- URL o dirección IP utilizada.
+- Código de respuesta HTTP.
+- Archivo de configuración de Nginx.
+- Permisos del directorio publicado.
+- Extracto de access.log.
+- Extracto de error.log.
+
+No deben incluir contraseñas, tokens, llaves privadas ni secretos.
+
+## Modelo de amenazas inicial 
+
+**Categorías STRIDE**: El uso de las categorías STRIDE está disponible en la siguiente [sección](risk-register.md).
+
+**Mitigación propuesta**: Esta será revisada más adelante. 
+
+
 ## Uso responsable de IA
 
 Antes de compartir logs, PCAP, IP, hostnames o usuarios con una herramienta de IA, anonimizar los datos del laboratorio. Validar manualmente toda conclusión contra el código, los comandos y la evidencia recolectada.
+
+
+---
