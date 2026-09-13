@@ -1,99 +1,157 @@
-# MuvAutomation Secure Challenge — Laboratorio 3
+# muvautomation-secure-challenge
 
-Aplicación web pública por HTTP (sin autenticación) para el ejercicio Red Team / Blue Team
-del Laboratorio 3. Repositorio acumulativo del Secure Product Challenge (FDSI).
+MVP académico para **Secure Product Challenge - Lab 3**. Simula la automatización de incidentes de CrowdStrike Falcon con datos completamente ficticios, sin conexión a CrowdStrike ni a servicios externos reales.
 
-## Estado
-- ☐ Sitio desplegado en la instancia autorizada
-- ☐ DFD ligero completado
-- ☐ Tabla STRIDE completada (mínimo 4 hipótesis)
-- ☐ Evidencia Red Team recolectada
-- ☐ Evidencia Blue Team recolectada
-- ☐ Hardening aplicado y retest ejecutado
-- ☐ Tag `lab-3` creado
+## Propósito y alcance
 
+La aplicación publica una línea base intencionalmente insegura por HTTP plano y sin autenticación. El objetivo es que los equipos Red Team y Blue Team puedan observar peticiones, respuestas y logs durante el laboratorio. HTTPS, autenticación y rate limiting quedan para el Laboratorio 4.
 
-## Herramientas del laboratorio (qué son y para qué sirven)
-
-| Herramienta | Para qué sirve | ¿Se descarga aparte? |
-|---|---|---|
-| **Kali Linux** | Distribución de Linux con decenas de herramientas de seguridad ofensiva preinstaladas (Nmap, ZAP, Wireshark, etc.). Actúa como la "máquina atacante" del Red Team. | Normalmente ya viene provisionada en la sala. Si no, se descarga como VM/ISO desde kali.org. |
-| **Ubuntu Server LTS** | Sistema operativo del servidor que aloja la aplicación web. "LTS" significa soporte extendido y estabilidad. | Normalmente ya viene provisionada en la sala como VM o instancia en la nube. |
-| **Nginx** | Servidor web que recibe las peticiones HTTP y entrega el contenido del sitio (`index.html`, etc.). Es el software que realmente "publica" la aplicación. | No, se instala con `apt install nginx` desde los repositorios oficiales de Ubuntu. |
-| **Nmap** | Escáner de puertos y servicios: indica qué puertos están abiertos en una IP y qué software corre en ellos. Es la herramienta clásica de reconocimiento de red. | Viene preinstalado en Kali; si no, `apt install nmap`. |
-| **curl** | Cliente de línea de comandos para hacer peticiones HTTP manualmente y ver headers, código de respuesta y contenido, sin usar un navegador. | No, viene preinstalado en casi cualquier Linux/Mac/Windows moderno. |
-| **tcpdump** | Captura tráfico de red en crudo desde la línea de comandos y lo guarda en un archivo `.pcap`. Se usa en el servidor (Blue Team) para registrar qué pasa por la red. | No, viene preinstalado en la mayoría de distros Linux, o `apt install tcpdump`. |
-| **Wireshark** | Interfaz gráfica para analizar los archivos `.pcap` generados por tcpdump, con filtros (como `http`) para inspeccionar el contenido de cada paquete. | Se descarga desde wireshark.org, o viene preinstalado en Kali. |
-| **OWASP ZAP** | Herramienta de pruebas de seguridad para aplicaciones web. En este laboratorio se usa en modo pasivo (sin ataques activos): navega el sitio y reporta headers de seguridad faltantes, tecnologías detectadas, etc. | Viene preinstalado en Kali, o se descarga desde zaproxy.org. |
-| **access.log / error.log** | Archivos de registro que Nginx genera automáticamente por cada petición (quién, cuándo, qué pidió, qué código de respuesta recibió). Es la evidencia principal del Blue Team. | No se descargan; existen por defecto en `/var/log/nginx/` una vez instalado Nginx. |
-
+La ruta de agregación imita la idea de `POST /alerts/aggregates/alerts/v1`, pero el endpoint local es `POST /api/alerts/aggregates` y solo consulta datos de esta base ficticia.
 
 ## Arquitectura
-```
-Usuario/Kali → Red del laboratorio (LAB_CIDR) → Nginx (puerto 80) → /var/www/muvautomation
-```
-Límites de confianza: (1) entrada al servidor desde la red del laboratorio, (2) frontera
-entre la red y la aplicación/archivos servidos por Nginx.
 
-Ver `diagrams/dfd-lab3.png` para el DFD completo (agregar el diagrama del equipo).
+```mermaid
+flowchart LR
+    user((Usuario anónimo)) -->|HTTP :80| nginx["Nginx\nproxy + access.log/error.log"]
+    nginx -->|HTML/CSS/JS| web["web-frontend\nExpress :3000"]
+    web -->|fetch /api/*| api["alerts-api\nREST :3001\napp.log JSONL"]
+    api --> audit["audit-service\nmódulo en el mismo proceso"]
+    api -->|SQL| db[(PostgreSQL)]
+    audit -->|audit_log| db
+```
 
-## Variables de entorno del laboratorio
-Estas se acuerdan con el docente el día del laboratorio; **no** deben quedar con valores reales
-en el repo si el CIDR/IP no son de uso público autorizado permanente:
+El diagrama editable está en [diagrams/architecture.md](diagrams/architecture.md). El límite de confianza de red está entre el usuario y Nginx; el límite de aplicación está entre Nginx/frontend y los servicios internos. Nginx genera los logs de acceso y error. `alerts-api` genera `app/alerts-api/logs/app.log` en JSON Lines.
+
+## Estructura
+
+```text
+app/
+├── web-frontend/       # dashboard Express, HTML/CSS/JS
+├── alerts-api/         # API REST, PostgreSQL, schema, seed y logs
+└── audit-service/      # módulo de auditoría usado por alerts-api
+nginx/                  # configuración base y hardened
+ diagrams/              # diagrama Mermaid
+ evidence/              # evidencia Red Team, Blue Team y retest
+ reports/zap-passive/   # exportaciones de ZAP pasivo
+risk-register.md
+```
+
+`audit-service` no arranca un proceso separado: es un módulo local que escribe en `audit_log` y expone sus funciones a `alerts-api`. Esta decisión conserva la responsabilidad separada y reduce complejidad para el despliegue del laboratorio.
+
+## Requisitos
+
+- Node.js 18 o superior y npm.
+- PostgreSQL 14 o superior nativo para el despliegue final.
+- Nginx para publicar por HTTP.
+- Docker opcional únicamente para levantar PostgreSQL durante el desarrollo local.
+
+## Ejecución local
+
+1. Instalar dependencias desde la raíz:
+
+   ```bash
+   npm install
+   cp .env.example .env
+   ```
+
+   En Windows PowerShell, usar `Copy-Item .env.example .env` y, si se usa el `docker-compose.yml` incluido, cambiar localmente `DB_PASSWORD` a `postgres` para coincidir con la contraseña ficticia del contenedor. Nunca reutilizar ese valor fuera del desarrollo local.
+
+2. Crear la base de datos `muvautomation_lab3` y cargar el esquema y datos ficticios:
+
+   ```bash
+   createdb -U postgres muvautomation_lab3
+   npm run seed
+   ```
+
+   Alternativamente, para desarrollo local: `docker compose up -d postgres` y luego `npm run seed`.
+
+3. Ejecutar los servicios en terminales separadas:
+
+   ```bash
+   npm run dev:api
+   npm run dev:web
+   ```
+
+   El API queda en `http://127.0.0.1:3001` y el frontend en `http://127.0.0.1:3000`. El frontend consume rutas relativas `/api/*` y su servidor incluye un proxy local hacia `alerts-api`; Nginx se usa para la publicación integrada por HTTP.
+
+4. Comprobar el API:
+
+   ```bash
+   curl http://127.0.0.1:3001/health
+   curl "http://127.0.0.1:3001/api/alerts?limit=10&offset=0"
+   curl -X POST http://127.0.0.1:3001/api/alerts/aggregates -H "Content-Type: application/json" -d '{"date_ranges":[{}],"field":"severity"}'
+   ```
+
+## API pública ficticia
+
+- `POST /api/alerts`: ingesta una alerta ficticia.
+- `GET /api/alerts?limit=&offset=&severity=&status=`: lista y filtra alertas.
+- `GET /api/alerts/:id`: detalle.
+- `PATCH /api/alerts/:id/status`: body `{ "status": "new|in_progress|closed" }`; registra auditoría.
+- `POST /api/alerts/aggregates`: body `{ "date_ranges": [{ "from": "...", "to": "..." }], "field": "severity|status|tactic" }`; registra auditoría.
+- `GET /api/audit?limit=`: historial de auditoría de solo lectura.
+- `GET /health`: estado del API y conexión a PostgreSQL.
+
+El modelo `alerts` usa campos inspirados pero no equivalentes al esquema real de Falcon Alerts: `id`, `composite_id`, `severity`, `status`, `tactic`, `technique`, `hostname`, `description`, `created_timestamp` y `updated_timestamp`. Son nombres ficticios/simplificados para este laboratorio.
+
+## Variables de entorno
+
+La plantilla versionada está en [.env.example](.env.example). No colocar secretos ni credenciales reales.
+
+| Variable | Uso |
+|---|---|
+| `DB_HOST` | Host PostgreSQL |
+| `DB_PORT` | Puerto PostgreSQL |
+| `DB_NAME` | Base de datos |
+| `DB_USER` | Usuario local del laboratorio |
+| `DB_PASSWORD` | Placeholder local; nunca subir un valor real |
+| `PORT_WEB` | Puerto del frontend, por defecto 3000 |
+| `PORT_API` | Puerto del API, por defecto 3001 |
+
+## Despliegue en Ubuntu Server
+
+1. Instalar Node.js, PostgreSQL y Nginx desde repositorios autorizados.
+2. Crear la base de datos y cargar `app/alerts-api/db/schema.sql` y `app/alerts-api/db/seed.sql` con un usuario local de PostgreSQL.
+3. Copiar el repositorio a `/var/www/muvautomation`, ejecutar `npm ci` y configurar `.env` con valores locales.
+4. Ejecutar `npm start --workspace alerts-api` y `npm start --workspace web-frontend` mediante systemd o un supervisor de procesos.
+5. Instalar `nginx/muvautomation.conf` en Nginx, validar con `nginx -t` y recargar el servicio. La variante `muvautomation-hardened.conf` conserva el proxy y añade headers defensivos para la fase de retest.
+6. Revisar `/var/log/nginx/muvautomation_access.log`, `/var/log/nginx/muvautomation_error.log` y `app/alerts-api/logs/app.log` como evidencia Blue Team.
+
+PostgreSQL debe ser nativo en el despliegue final. `docker-compose.yml` es solo una ayuda para desarrollo local.
+
+## Evidencia y operación del laboratorio
+
+- `evidence/red/`: reconocimiento autorizado, `curl`, Nmap y ZAP pasivo.
+- `evidence/blue/`: logs y capturas filtradas, sin datos reales innecesarios.
+- `evidence/retest/`: comparación tras aplicar la configuración hardened.
+- `reports/zap-passive/`: reportes exportados de ZAP en modo pasivo.
+
+## Limitaciones de seguridad conocidas
+
+Estas limitaciones son intencionales y forman parte del Lab 3:
+
+- HTTP sin cifrar; no usar en producción.
+- Sin autenticación ni autorización.
+- CORS abierto en `alerts-api`.
+- Sin rate limiting ni protección anti-abuso.
+- API pública con datos ficticios y endpoints de modificación.
+- Logs locales sin pipeline centralizado ni retención configurada.
+- Los placeholders de `.env.example` no son credenciales utilizables.
+
+Las mitigaciones de HTTPS y autenticación se implementarán en el Laboratorio 4. No usar este prototipo con datos personales, tokens, API keys o credenciales reales.
+
+## Integrantes
+
+- Equipo del laboratorio: completar nombres y roles antes de la entrega.
+
+## Commits de evidencia
+
+Los cambios del MVP se organizan en commits pequeños por slice funcional. Verificar la historia con:
 
 ```bash
-export TARGET_IP=IP_ASIGNADA
-export TARGET_URL=http://$TARGET_IP
-export LAB_CIDR=CIDR_AUTORIZADO
+git log --oneline --decorate -n 10
 ```
-
-## Estructura del repositorio
-```
-muvautomation-secure-challenge/
-├── app/                      # contenido servido por Nginx (index.html, public-inventory.txt)
-├── nginx/                    # config base y config con hardening (paso 4 y paso 15)
-├── diagrams/dfd-lab3.png     # DFD ligero (agregar en sala)
-├── evidence/red/             # nmap, curl, reporte ZAP pasivo
-├── evidence/blue/            # access.log/error.log recortados, PCAP filtrado
-├── reports/zap-passive/      # export HTML de ZAP
-├── risk-register.md
-└── README.md
-```
-
-## Procedimiento de reproducción (resumen)
-1. **Builder**: instalar Nginx, copiar `app/*` a `/var/www/muvautomation/`, usar
-   `nginx/muvautomation.conf` como sitio inicial, habilitar y validar (`nginx -t`,
-   `curl -i http://127.0.0.1/`).
-2. **Firewall**: `ufw` restringido a `LAB_CIDR` en el puerto 80 + OpenSSH.
-3. **Modelado**: completar DFD y tabla STRIDE (ver plantilla abajo) antes de atacar.
-4. **Red Team**: `nmap -Pn -sV -p 80`, `curl -i`, `curl -I`, exploración pasiva con ZAP.
-   Guardar todo en `evidence/red/`.
-5. **Blue Team**: captura con `tcpdump` filtrada a puerto 80, revisión de
-   `access.log`/`error.log`, regla de detección (5+ códigos 404 de la misma IP en 5 min).
-   Guardar todo en `evidence/blue/`.
-6. **Hardening**: aplicar `nginx/muvautomation-hardened.conf` (agrega
-   `server_tokens off`, headers de seguridad, `autoindex off`, deniega rutas ocultas).
-7. **Retest**: repetir exactamente las pruebas del paso 4 y comparar antes/después en
-   `evidence/retest/`.
-8. **Cierre**: commit + `git tag lab-3`.
-
-> **Importante**: este laboratorio deja intencionalmente HTTP sin TLS y sin autenticación.
-> Ese riesgo (H1/H4 en `risk-register.md`) se resuelve en el Laboratorio 4.
-
-## Tabla STRIDE (plantilla — completar en clase)
-| ID | STRIDE | Hipótesis técnica | Validación |
-|----|--------|--------------------|------------|
-| H1 | Information Disclosure | HTTP permite observar contenido y rutas en tránsito | Captura PCAP filtrada |
-| H2 | Information Disclosure | Headers y respuestas revelan tecnología o recursos | `curl -I` y ZAP pasivo |
-| H3 | Repudiation | Sin correlación temporal, no se atribuyen solicitudes | Comparar comando con `access.log` |
-| H4 | Tampering | Sin TLS, un intermediario podría alterar tráfico (no se ejecuta MITM) | Demostrar ausencia de protección |
 
 ## Uso responsable de IA
-Antes de compartir logs/PCAP con cualquier IA (incluida esta conversación), anonimizar
-IP públicas, hostnames, usuarios y rutas sensibles. Ningún dato real del laboratorio debe
-salir sin anonimizar. Toda conclusión generada por IA debe validarse manualmente contra
-comandos, logs o PCAP reales antes de incluirla en la entrega.
 
-## Reflexión individual
-(máximo 250 palabras — agregar al final de este README o en un archivo aparte
-`reflexion.md` antes de la entrega)
+Antes de compartir logs, PCAP, IP, hostnames o usuarios con una herramienta de IA, anonimizar los datos del laboratorio. Validar manualmente toda conclusión contra el código, los comandos y la evidencia recolectada.

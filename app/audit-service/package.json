@@ -1,0 +1,14 @@
+{
+  "name": "audit-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Módulo de auditoría (mismo proceso que alerts-api). Ver README raíz.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -e \"console.log('audit-service es un módulo usado por alerts-api; no arranca un proceso propio.')\"",
+    "dev": "npm run start"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

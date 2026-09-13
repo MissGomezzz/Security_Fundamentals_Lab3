@@ -1,0 +1,23 @@
+INSERT INTO alerts (id, composite_id, severity, status, tactic, technique, hostname, description, created_timestamp, updated_timestamp)
+VALUES
+('alert-001', 'lab3:alert-001', 'CRITICAL', 'new', 'Credential Access', 'OS Credential Dumping', 'ws-finance-01', 'Proceso ficticio accedió a un almacén local de credenciales.', NOW() - INTERVAL '2 hours', NOW() - INTERVAL '2 hours'),
+('alert-002', 'lab3:alert-002', 'HIGH', 'in_progress', 'Persistence', 'Scheduled Task/Job', 'srv-app-02', 'Se detectó una tarea programada no documentada.', NOW() - INTERVAL '4 hours', NOW() - INTERVAL '1 hour'),
+('alert-003', 'lab3:alert-003', 'MEDIUM', 'new', 'Discovery', 'System Network Configuration Discovery', 'ws-hr-03', 'Consulta ficticia de configuración de red.', NOW() - INTERVAL '6 hours', NOW() - INTERVAL '6 hours'),
+('alert-004', 'lab3:alert-004', 'LOW', 'closed', 'Discovery', 'File and Directory Discovery', 'ws-dev-04', 'Enumeración de directorios en un entorno de prueba.', NOW() - INTERVAL '1 day', NOW() - INTERVAL '20 hours'),
+('alert-005', 'lab3:alert-005', 'HIGH', 'new', 'Execution', 'Command and Scripting Interpreter', 'ws-sales-05', 'Script ficticio iniciado desde una carpeta temporal.', NOW() - INTERVAL '1 day', NOW() - INTERVAL '23 hours'),
+('alert-006', 'lab3:alert-006', 'CRITICAL', 'in_progress', 'Exfiltration', 'Exfiltration Over Web Service', 'srv-data-06', 'Patrón ficticio de transferencia de datos fuera de horario.', NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day'),
+('alert-007', 'lab3:alert-007', 'MEDIUM', 'closed', 'Defense Evasion', 'Indicator Removal', 'ws-ops-07', 'Se observaron intentos de limpiar archivos temporales.', NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day'),
+('alert-008', 'lab3:alert-008', 'LOW', 'new', 'Discovery', 'Process Discovery', 'ws-lab-08', 'Inventario de procesos solicitado por un usuario de laboratorio.', NOW() - INTERVAL '3 days', NOW() - INTERVAL '3 days'),
+('alert-009', 'lab3:alert-009', 'HIGH', 'closed', 'Lateral Movement', 'Remote Services', 'srv-test-09', 'Conexión remota ficticia desde un segmento no esperado.', NOW() - INTERVAL '3 days', NOW() - INTERVAL '2 days'),
+('alert-010', 'lab3:alert-010', 'MEDIUM', 'in_progress', 'Initial Access', 'Phishing', 'ws-legal-10', 'Correo de simulación del laboratorio con enlace sospechoso.', NOW() - INTERVAL '4 days', NOW() - INTERVAL '3 days'),
+('alert-011', 'lab3:alert-011', 'LOW', 'closed', 'Collection', 'Screen Capture', 'ws-design-11', 'Herramienta de pruebas tomó una captura autorizada.', NOW() - INTERVAL '5 days', NOW() - INTERVAL '4 days'),
+('alert-012', 'lab3:alert-012', 'CRITICAL', 'new', 'Impact', 'Data Encrypted for Impact', 'srv-backup-12', 'Simulación de modificación masiva de archivos de prueba.', NOW() - INTERVAL '5 days', NOW() - INTERVAL '5 days'),
+('alert-013', 'lab3:alert-013', 'HIGH', 'in_progress', 'Privilege Escalation', 'Valid Accounts', 'ws-admin-13', 'Uso ficticio de una cuenta privilegiada durante una práctica.', NOW() - INTERVAL '6 days', NOW() - INTERVAL '5 days'),
+('alert-014', 'lab3:alert-014', 'MEDIUM', 'new', 'Command and Control', 'Application Layer Protocol', 'srv-api-14', 'Solicitud periódica simulada hacia un endpoint de laboratorio.', NOW() - INTERVAL '6 days', NOW() - INTERVAL '6 days'),
+('alert-015', 'lab3:alert-015', 'LOW', 'closed', 'Discovery', 'Account Discovery', 'ws-support-15', 'Enumeración ficticia de cuentas locales.', NOW() - INTERVAL '7 days', NOW() - INTERVAL '6 days'),
+('alert-016', 'lab3:alert-016', 'HIGH', 'new', 'Credential Access', 'Brute Force', 'srv-auth-16', 'Serie simulada de intentos fallidos de autenticación.', NOW() - INTERVAL '8 days', NOW() - INTERVAL '8 days'),
+('alert-017', 'lab3:alert-017', 'MEDIUM', 'closed', 'Execution', 'User Execution', 'ws-training-17', 'Usuario de pruebas ejecutó un archivo de simulación.', NOW() - INTERVAL '9 days', NOW() - INTERVAL '8 days'),
+('alert-018', 'lab3:alert-018', 'LOW', 'new', 'Discovery', 'System Information Discovery', 'ws-library-18', 'Consulta ficticia de información del sistema.', NOW() - INTERVAL '10 days', NOW() - INTERVAL '10 days'),
+('alert-019', 'lab3:alert-019', 'CRITICAL', 'in_progress', 'Persistence', 'Boot or Logon Autostart Execution', 'srv-core-19', 'Mecanismo de inicio automático detectado en entorno simulado.', NOW() - INTERVAL '11 days', NOW() - INTERVAL '10 days'),
+('alert-020', 'lab3:alert-020', 'HIGH', 'closed', 'Defense Evasion', 'Obfuscated Files or Information', 'ws-research-20', 'Archivo de laboratorio con contenido ofuscado.', NOW() - INTERVAL '12 days', NOW() - INTERVAL '11 days')
+ON CONFLICT (id) DO NOTHING;
