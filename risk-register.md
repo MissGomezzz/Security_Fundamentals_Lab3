@@ -7,8 +7,3 @@
 | H3 | Repudiation | Sin correlación temporal, no se atribuyen solicitudes | Mitigado | evidence/blue/access_log_correlacion.txt | Correlación manual timestamp ↔ access.log |
 | H4 | Tampering | Sin TLS, un intermediario podría alterar tráfico | Pendiente para Lab 4 | — | Requiere HTTPS/TLS (Lab 4) |
 | H5 | (agregar) | Ruta oculta .git/config accesible | Corregido | evidence/retest/hidden_path.txt | `location ~ /\. { deny all; }` |
-
-Estados posibles: **Corregido**, **Mitigado**, **Aceptado**, **Pendiente para Lab 4**.
-
-> Completar esta tabla con al menos 4 hipótesis (mínimo exigido por la guía) y añadir
-> las que surjan durante la ronda Red Team / Blue Team real en la sala de laboratorio.
