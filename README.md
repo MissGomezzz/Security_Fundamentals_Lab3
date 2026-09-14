@@ -290,12 +290,30 @@ local, lo que confirma el contenido publicado:
 
 ![Contenido de la página publicado](assets/contenido_pagina.png)
 
+El archivo de configuración de Nginx utilizado en el servidor se muestra en la
+siguiente captura:
+
+![Archivo de configuración de Nginx](assets/archivo_conf_nginx.png)
+
+Los permisos y propietarios del directorio publicado se verificaron sobre
+`/var/www/muvautomation/app/web-frontend/public`:
+
+![Permisos del directorio publicado](assets/permisos_directorio.png)
+
+El extracto del registro de accesos confirma las solicitudes realizadas al sitio y
+a la API:
+
+![Extracto de access.log](assets/access_log.png)
+
+El extracto del registro de errores de Nginx también quedó documentado:
+
+![Extracto de error.log](assets/error_log.png)
+
 La configuración utilizada se encuentra versionada en
 [`nginx/muvautomation.conf`](nginx/muvautomation.conf) y la variante endurecida en
 [`nginx/muvautomation-hardened.conf`](nginx/muvautomation-hardened.conf). Los
 extractos de `access.log`, `error.log` y la comprobación de permisos del directorio
-publicado deben conservarse en `evidence/blue/` como archivos de texto para
-completar la entrega de evidencias del servidor.
+publicado se incluyen también como capturas en esta sección.
 
 No se incluyen contraseñas, tokens, llaves privadas ni secretos en estas capturas.
 
