@@ -10,11 +10,11 @@
 
 **Problema seleccionado**: MVP académico para **Secure Product Challenge - Lab 3**. Simula la automatización de incidentes de CrowdStrike Falcon con datos completamente ficticios, sin conexión a CrowdStrike ni a servicios externos reales.
 
-**Objetivo**: 
+**Objetivo**: Realizar una diánmica entre equipos de trabajo, en donde se deberá construir, atacar, detectar, corregir y verificar una aplicación web publicada mediante HTTP. 
 
 **Usuarios previstos**: Inicialmente serían el Red y Blue Team, pues estos tendrán que operar sobre acciones ofensivas y defensivas a nivel de seguridad sobre la API. 
 
-**Datos fictios utilizados**: 
+**Datos fictios utilizados**: Disponibles en el siguiente [archivo](/app/alerts-api/db/schema.sql)
 
 **Alcance y exclusiones**: La aplicación publica una línea base intencionalmente insegura por HTTP plano y sin autenticación. El objetivo es que los equipos Red Team y Blue Team puedan observar peticiones, respuestas y logs durante el laboratorio. HTTPS, autenticación y rate limiting quedan para el Laboratorio 4.
 
@@ -48,7 +48,7 @@ app/
 ├── alerts-api/         # API REST, PostgreSQL, schema, seed y logs
 └── audit-service/      # módulo de auditoría usado por alerts-api
 nginx/                  # configuración base y hardened
- diagrams/              # diagrama Mermaid
+ diagrams/              # diagrama Lucidchart
  evidence/              # evidencia Red Team, Blue Team y retest
  reports/zap-passive/   # exportaciones de ZAP pasivo
 risk-register.md
