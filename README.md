@@ -23,9 +23,9 @@ La ruta de agregación imita la idea de `POST /alerts/aggregates/alerts/v1`, per
 
 **Resultados del despliegue 1era entrega**: Una aplicación web funcional estática manejada por microservicios, corriendo desde una máquina Ubuntu de forma temporal mientras se obtiene un espacio en la nube (manejado por el profesor) para realizar el despligue para uso público. La información de la API estará disponible en una base de datos PostgreSQL. 
 
-## Arquitectura implementada inicial
+## Arquitectura inicial implementada 
 
-![diagrama DFD](/diagrams/Lab3%20-%20Arquitectura%20DFD.png)
+![diagrama DFD](/diagrams/initial_dfd.png)
 
 En el diagrama es posible identificar los siguientes elementos: 
 
