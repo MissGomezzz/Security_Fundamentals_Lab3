@@ -135,7 +135,7 @@ risk-register.md
 4. Comprobar el API:
 
    ```bash
-   curl http://127.0.0.1:3001/health
+   curl http://127.0.0.1:3001/
    curl "http://127.0.0.1:3001/api/alerts?limit=10&offset=0"
    curl -X POST http://127.0.0.1:3001/api/alerts/aggregates -H "Content-Type: application/json" -d '{"date_ranges":[{}],"field":"severity"}'
    ```
@@ -183,6 +183,121 @@ PostgreSQL debe ser nativo en el despliegue final. `docker-compose.yml` es solo 
 - `evidence/blue/`: logs y capturas filtradas, sin datos reales innecesarios.
 - `evidence/retest/`: comparación tras aplicar la configuración hardened.
 - `reports/zap-passive/`: reportes exportados de ZAP en modo pasivo.
+
+## 5. Evidencias de ejecución local
+
+Las siguientes capturas documentan la revisión local del repositorio y la ejecución
+del frontend. La fecha visible en la evidencia corresponde al 14 de septiembre de
+2026 en UTC.
+
+### Estado del repositorio y archivos
+
+Comandos solicitados:
+
+```bash
+git status
+git log --oneline -5
+find . -maxdepth 3 -type f
+```
+
+`git status` muestra que el repositorio está en la rama `main`, sincronizado con
+`origin/main` y sin cambios pendientes:
+
+![Estado del repositorio](assets/git_status.png)
+
+El historial identifica el commit que contiene la versión evaluada y los cambios
+principales del laboratorio:
+
+![Historial de commits](assets/git_logs.png)
+
+El listado confirma la existencia de `app/index.html` y de los archivos principales
+del proyecto dentro del repositorio:
+
+![Archivos encontrados en el repositorio](assets/find_maxdepth_3_type_f.png)
+
+### Funcionamiento local y respuesta HTTP
+
+El frontend se ejecutó localmente en `http://127.0.0.1:3000/` y se comprobó desde
+el navegador:
+
+![Aplicación funcionando localmente](assets/funcionamiento_en_local.png)
+
+La respuesta obtenida con `curl` devuelve el documento HTML de la aplicación:
+
+```bash
+curl http://127.0.0.1:3000
+```
+
+![Contenido HTML obtenido con curl](assets/contenido_pagina.png)
+
+También se verificó la respuesta HTTP a través del punto publicado por Nginx:
+
+```bash
+curl -i http://127.0.0.1:8080/api/alerts
+```
+
+La captura muestra `HTTP/1.1 200 OK`, el servidor Nginx y la respuesta JSON del
+endpoint:
+
+![Código HTTP y respuesta de la API](assets/codigo_http_con_curl.png)
+
+La fecha y hora de la prueba se registraron con:
+
+```bash
+date -u +%Y-%m-%dT%H:%M:%SZ
+```
+
+![Fecha y hora de las pruebas](assets/timestamp.png)
+
+## 6. Evidencias del servidor y Nginx
+
+Los servicios de la aplicación quedaron activos mediante PM2. La siguiente captura
+muestra `alerts-api` y `web-frontend` en estado `online`:
+
+![Procesos de la aplicación activos](assets/arranque_app_ubuntu.png)
+
+Esta segunda captura confirma el mismo estado operativo junto con el inventario del
+proyecto en el servidor:
+
+![Inventario y procesos del servidor](assets/evidencias_servidor1.png)
+
+La comprobación del entorno del servidor incluyó `whoami`, `pwd`, la versión de
+Nginx, el estado del servicio y la validación de sintaxis:
+
+```bash
+hostname
+whoami
+pwd
+nginx -v
+systemctl status nginx --no-pager
+sudo nginx -t
+```
+
+![Estado del servicio y validación de Nginx](assets/evidencias_servidor2.png)
+
+La respuesta de la API publicada por Nginx se verificó desde otro equipo mediante
+`curl`, usando la dirección `http://127.0.0.1:8080/api/alerts`:
+
+![Respuesta HTTP desde la consola externa](assets/funcionamiento_por_fuera_consola.png)
+
+La misma dirección se abrió en el navegador para confirmar la publicación visual de
+la aplicación:
+
+![Aplicación publicada en el navegador](assets/funcionamiento_por_fuera_navegador.png)
+
+La respuesta HTML también se obtuvo desde el servidor con `curl` contra el frontend
+local, lo que confirma el contenido publicado:
+
+![Contenido de la página publicado](assets/contenido_pagina.png)
+
+La configuración utilizada se encuentra versionada en
+[`nginx/muvautomation.conf`](nginx/muvautomation.conf) y la variante endurecida en
+[`nginx/muvautomation-hardened.conf`](nginx/muvautomation-hardened.conf). Los
+extractos de `access.log`, `error.log` y la comprobación de permisos del directorio
+publicado deben conservarse en `evidence/blue/` como archivos de texto para
+completar la entrega de evidencias del servidor.
+
+No se incluyen contraseñas, tokens, llaves privadas ni secretos en estas capturas.
 
 ## Limitaciones de seguridad conocidas
 
