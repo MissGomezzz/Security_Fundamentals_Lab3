@@ -334,6 +334,17 @@ No deben incluir contraseñas, tokens, llaves privadas ni secretos.
 
 **Mitigación propuesta**: Esta será revisada más adelante. 
 
+## Arquitectura fortalecida
+
+La arquitectura fortalecida reduce la superficie de ataque al centralizar el acceso público en Nginx. El tráfico HTTP/HTTPS entra por los puertos 80/443, mientras que `web-frontend`, `alerts-api` y PostgreSQL permanecen en una zona interna restringida. El firewall define el límite de confianza y restringe el acceso administrativo y a los servicios internos.
+
+Los controles incluyen limitación de solicitudes en Nginx, CORS restringido en la API, respuestas de error genéricas y restricciones de acceso a PostgreSQL. La configuración TLS debe admitir TLS 1.2 como mínimo y preferir TLS 1.3.
+
+Diagrama de referencia: [`diagrams/hardened_dfd.png`](diagrams/hardened_dfd.png).
+
+Los riesgos H6–H12 del registro complementan los riesgos iniciales H1–H5 y documentan las brechas asociadas a la arquitectura actual. Los resultados del retest se almacenan en [`evidence/retest/`](evidence/retest/), donde se comparan los escaneos de puertos antes y después y se registra el estado del firewall y la prueba de acceso directo a la API.
+
+
 
 ## Uso responsable de IA
 
