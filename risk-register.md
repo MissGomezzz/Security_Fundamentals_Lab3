@@ -6,7 +6,8 @@
 | H2 | Information Disclosure | Headers/respuestas revelan tecnología o recursos | Mitigado | evidence/retest/headers_after.txt | server_tokens off + headers de seguridad |
 | H3 | Repudiation | Sin correlación temporal, no se atribuyen solicitudes | Mitigado | evidence/blue/access_log_correlacion.txt | Correlación manual timestamp ↔ access.log |
 | H4 | Tampering | Sin TLS, un intermediario podría alterar tráfico | Pendiente para Lab 4 | — | Requiere HTTPS/TLS (Lab 4) |
-| H5 | (agregar) | Ruta oculta .git/config accesible | Corregido | evidence/retest/hidden_path.txt | `location ~ /\. { deny all; }` |
+| H5 | Information Disclosure | Ruta oculta .git/config accesible | Pendiente de retest | evidence/retest/hidden_path.txt | `location ~ /\. { deny all; }`; verificar que Nginx realmente bloquea la ruta |
+
 
 
 ## Gaps de seguridad de la arquitectura actual

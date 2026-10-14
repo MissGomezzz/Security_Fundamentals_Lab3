@@ -334,7 +334,7 @@ No deben incluir contraseñas, tokens, llaves privadas ni secretos.
 
 **Mitigación propuesta**: Esta será revisada más adelante. 
 
-## Arquitectura fortalecida
+# Segunda parte Laboratorio - Arquitectura fortalecida
 
 La arquitectura fortalecida reduce la superficie de ataque al centralizar el acceso público en Nginx. El tráfico HTTP/HTTPS entra por los puertos 80/443, mientras que `web-frontend`, `alerts-api` y PostgreSQL permanecen en una zona interna restringida. El firewall define el límite de confianza y restringe el acceso administrativo y a los servicios internos.
 
@@ -344,6 +344,45 @@ Diagrama de referencia: [`diagrams/hardened_dfd.png`](diagrams/hardened_dfd.png)
 
 Los riesgos H6–H12 del registro complementan los riesgos iniciales H1–H5 y documentan las brechas asociadas a la arquitectura actual. Los resultados del retest se almacenan en [`evidence/retest/`](evidence/retest/), donde se comparan los escaneos de puertos antes y después y se registra el estado del firewall y la prueba de acceso directo a la API.
 
+
+## Estado de seguridad y validación
+
+### Controles implementados en el repositorio
+
+La rama `feature/safe-architecture` contiene cambios destinados a fortalecer la arquitectura del laboratorio:
+
+- Política CORS de lista permitida en `app/alerts-api/src/index.js`.
+- Manejo de errores que evita exponer detalles internos en las respuestas de la API.
+- Configuración endurecida de Nginx en `nginx/muvautomation-hardened.conf`, que incluye cabeceras de seguridad, restricciones de rutas ocultas y limitación de solicitudes.
+- Registro de riesgos actualizado en `risk-register.md`.
+- Estructura de evidencias para el retest en `evidence/retest/`.
+
+La existencia de estas configuraciones en el repositorio no demuestra por sí sola que estén desplegadas ni que funcionen correctamente en las máquinas virtuales.
+
+### Arquitectura objetivo
+
+Nginx es el punto de entrada público previsto para la aplicación. El frontend, la API y PostgreSQL deben exponerse únicamente según las necesidades de la arquitectura. Los puertos internos no deben quedar accesibles desde redes no autorizadas.
+
+- HTTP/HTTPS: únicamente los puertos habilitados deliberadamente en Nginx.
+- Frontend y API: acceso a través del punto de entrada previsto, evitando el acceso externo directo a sus puertos internos.
+- PostgreSQL: acceso restringido a los componentes que necesitan conectarse.
+- SSH: acceso limitado a las direcciones o redes administrativas autorizadas.
+
+La configuración final depende de si los componentes están en una misma VM o en máquinas separadas.
+
+### Estado de las validaciones
+
+Las pruebas locales permiten comprobar el comportamiento de la API, CORS, las respuestas de error y la configuración del código. Las pruebas de exposición de puertos, firewall y acceso desde una red externa requieren ejecutarse contra las VM correspondientes desde un equipo distinto.
+
+No se considerará un control validado hasta disponer de evidencia del resultado observado.
+
+### HTTPS y alcance del laboratorio
+
+Si el despliegue actual utiliza únicamente HTTP, el tráfico entre el cliente y el punto de entrada no está protegido mediante TLS. HTTPS debe documentarse como pendiente cuando no esté configurado y probado. Si el laboratorio reserva TLS para una fase posterior, esta limitación debe quedar explícita en el registro de riesgos.
+
+### Evidencia
+
+Los resultados del retest se documentarán en `evidence/retest/`. Cada archivo debe indicar qué se probó, contra qué objetivo, desde dónde se ejecutó, cuándo se realizó y cuál fue el resultado. No deben registrarse contraseñas, tokens ni otros secretos.
 
 
 ## Uso responsable de IA
