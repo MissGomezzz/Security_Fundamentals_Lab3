@@ -1,6 +1,6 @@
-﻿# 2026-10-20T22:37:48.3725965-05:00
+# 2026-10-20T22:37:48.3725965-05:00
 Starting Nmap 7.992 ( https://nmap.org ) at 2026-10-20 22:38 -0500
-Nmap scan report for 192.168.56.102
+Nmap scan report for 192.168.56.X
 Host is up (0.0010s latency).
 
 PORT     STATE    SERVICE    VERSION
