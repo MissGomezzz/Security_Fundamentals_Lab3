@@ -50,7 +50,6 @@ app/
 nginx/                  # configuración base y hardened
  diagrams/              # diagrama Lucidchart
  evidence/              # evidencia Red Team, Blue Team y retest
- reports/zap-passive/   # exportaciones de ZAP pasivo
 risk-register.md
 ```
 
@@ -139,7 +138,7 @@ PostgreSQL debe ser nativo en el despliegue final. `docker-compose.yml` es solo 
 
 ## Evidencia y operación del laboratorio
 
-- `evidence/red/`: reconocimiento autorizado, `curl`, Nmap y ZAP pasivo.
+- `evidence/red/`: reconocimiento autorizado, `curl` y Nmap.
 - `evidence/blue/`: logs y capturas filtradas, sin datos reales innecesarios.
 - `evidence/retest/`: comparación tras aplicar la configuración hardened.
 
