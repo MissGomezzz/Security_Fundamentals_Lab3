@@ -1,0 +1,18 @@
+2026-10-21T03:44:03Z
+22:	# server_tokens off;
+194:limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+205:    root /var/www/muvautomation/app/web-frontend/public;
+210:    server_tokens off;
+213:    add_header X-Content-Type-Options "nosniff" always;
+214:    add_header X-Frame-Options "DENY" always;
+215:    add_header Referrer-Policy "no-referrer" always;
+216:    add_header X-XSS-Protection "0" always;
+227:        deny all;
+232:        limit_req zone=api_limit burst=20 nodelay;
+total 28
+-rw-r----- 1 www-data adm  2422 Oct 21 02:16 access.log
+-rw-r----- 1 www-data adm  2791 Sep 14 00:43 access.log.1
+-rw-r----- 1 www-data adm   694 Oct 21 00:32 error.log
+-rw-r----- 1 www-data adm    78 Sep 13 12:56 error.log.1
+-rw-r--r-- 1 root     root 4968 Oct 21 03:40 muvautomation_access.log
+-rw-r--r-- 1 root     root 2630 Oct 21 03:40 muvautomation_error.log

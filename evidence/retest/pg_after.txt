@@ -1,0 +1,13 @@
+2026-10-21T02:28:07Z
+60:listen_addresses = 'localhost'		# what IP address(es) to listen on;
+● postgresql.service - PostgreSQL RDBMS
+     Loaded: loaded (/usr/lib/systemd/system/postgresql.service; enabled; preset: enabled)
+     Active: active (exited) since Wed 2026-10-21 02:08:27 UTC; 21min ago
+    Process: 3489 ExecStart=/bin/true (code=exited, status=0/SUCCESS)
+   Main PID: 3489 (code=exited, status=0/SUCCESS)
+        CPU: 4ms
+LISTEN 0      200        127.0.0.1:5432      0.0.0.0:*    users:(("postgres",pid=3471,fd=7))                                            
+LISTEN 0      200            [::1]:5432         [::]:*    users:(("postgres",pid=3471,fd=6))                                            
+{"status":"ok","service":"alerts-api","database":"ok"}
+[ 4] 5432/tcp                   DENY IN     Anywhere                  
+[10] 5432/tcp (v6)              DENY IN     Anywhere (v6)             

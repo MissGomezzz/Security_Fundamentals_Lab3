@@ -1,0 +1,11 @@
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                                        
+LISTEN 0      4096   127.0.0.53%lo:53        0.0.0.0:*    users:(("systemd-resolve",pid=420,fd=15))                                     
+LISTEN 0      4096      127.0.0.54:53        0.0.0.0:*    users:(("systemd-resolve",pid=420,fd=17))                                     
+LISTEN 0      4096         0.0.0.0:22        0.0.0.0:*    users:(("sshd",pid=2724,fd=3),("systemd",pid=1,fd=84))                        
+LISTEN 0      511          0.0.0.0:80        0.0.0.0:*    users:(("nginx",pid=4229,fd=5),("nginx",pid=4227,fd=5),("nginx",pid=722,fd=5))
+LISTEN 0      200        127.0.0.1:5432      0.0.0.0:*    users:(("postgres",pid=3471,fd=7))                                            
+LISTEN 0      200            [::1]:5432         [::]:*    users:(("postgres",pid=3471,fd=6))                                            
+LISTEN 0      511                *:3000            *:*    users:(("node",pid=1298,fd=18))                                               
+LISTEN 0      511                *:3001            *:*    users:(("node",pid=1269,fd=18))                                               
+LISTEN 0      4096            [::]:22           [::]:*    users:(("sshd",pid=2724,fd=4),("systemd",pid=1,fd=85))                        
+LISTEN 0      511             [::]:80           [::]:*    users:(("nginx",pid=4229,fd=14),("nginx",pid=4227,fd=14),("nginx",pid=722,fd=14))

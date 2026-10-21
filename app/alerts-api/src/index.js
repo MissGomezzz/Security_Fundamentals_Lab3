@@ -14,7 +14,28 @@ const severities = new Set(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']);
 const statuses = new Set(['new', 'in_progress', 'closed']);
 const tactics = new Set(['severity', 'status', 'tactic']);
 
-app.use(cors());
+const allowedOrigins = new Set(
+  (process.env.CORS_ALLOWED_ORIGINS || 'http://localhost:3000')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean)
+);
+
+app.use(cors({
+  origin(origin, callback) {
+    // Las solicitudes sin Origin pueden proceder de clientes
+    // que no utilizan navegador.
+    if (!origin || allowedOrigins.has(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('cors_origin_not_allowed'));
+  },
+  methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+
 app.use(express.json({ limit: '100kb' }));
 app.use(morgan('combined'));
 app.use(requestLogger);
@@ -142,10 +163,27 @@ app.get('/api/audit', async (req, res, next) => {
   } catch (error) { next(error); }
 });
 
+
 app.use((error, req, res, next) => {
-  writeLog({ event: 'application_error', method: req.method, path: req.originalUrl, message: error.message, stack: error.stack });
-  res.status(500).json({ error: 'internal_server_error' });
+  if (error.message === 'cors_origin_not_allowed') {
+    return res.status(403).json({
+      error: 'origin_not_allowed'
+    });
+  }
+
+  writeLog({
+    event: 'application_error',
+    method: req.method,
+    path: req.originalUrl,
+    message: error.message,
+    stack: error.stack
+  });
+
+  return res.status(500).json({
+    error: 'internal_server_error'
+  });
 });
+
 
 if (require.main === module) {
   app.listen(port, () => console.log(`alerts-api listening on port ${port}`));
