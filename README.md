@@ -142,7 +142,6 @@ PostgreSQL debe ser nativo en el despliegue final. `docker-compose.yml` es solo 
 - `evidence/red/`: reconocimiento autorizado, `curl`, Nmap y ZAP pasivo.
 - `evidence/blue/`: logs y capturas filtradas, sin datos reales innecesarios.
 - `evidence/retest/`: comparación tras aplicar la configuración hardened.
-- `reports/zap-passive/`: reportes exportados de ZAP en modo pasivo.
 
 ## 5. Evidencias de ejecución local
 
