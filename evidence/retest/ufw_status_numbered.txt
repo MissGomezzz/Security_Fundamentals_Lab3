@@ -1,0 +1,47 @@
+2026-10-21T02:13:58Z
+Uwuntu
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    10.0.2.15                 
+3000/tcp                   DENY IN     Anywhere                  
+3001/tcp                   DENY IN     Anywhere                  
+5432/tcp                   DENY IN     Anywhere                  
+22/tcp                     ALLOW IN    10.0.2.2                  
+22/tcp                     ALLOW IN    192.168.56.0/24           
+80/tcp                     ALLOW IN    Anywhere                  
+3000/tcp (v6)              DENY IN     Anywhere (v6)             
+3001/tcp (v6)              DENY IN     Anywhere (v6)             
+5432/tcp (v6)              DENY IN     Anywhere (v6)             
+80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] 22/tcp                     ALLOW IN    10.0.2.15                 
+[ 2] 3000/tcp                   DENY IN     Anywhere                  
+[ 3] 3001/tcp                   DENY IN     Anywhere                  
+[ 4] 5432/tcp                   DENY IN     Anywhere                  
+[ 5] 22/tcp                     ALLOW IN    10.0.2.2                  
+[ 6] 22/tcp                     ALLOW IN    192.168.56.0/24           
+[ 7] 80/tcp                     ALLOW IN    Anywhere                  
+[ 8] 3000/tcp (v6)              DENY IN     Anywhere (v6)             
+[ 9] 3001/tcp (v6)              DENY IN     Anywhere (v6)             
+[10] 5432/tcp (v6)              DENY IN     Anywhere (v6)             
+[11] 80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                                                        
+LISTEN 0      4096   127.0.0.53%lo:53        0.0.0.0:*    users:(("systemd-resolve",pid=420,fd=15))                                     
+LISTEN 0      4096      127.0.0.54:53        0.0.0.0:*    users:(("systemd-resolve",pid=420,fd=17))                                     
+LISTEN 0      4096         0.0.0.0:22        0.0.0.0:*    users:(("sshd",pid=2724,fd=3),("systemd",pid=1,fd=84))                        
+LISTEN 0      511          0.0.0.0:80        0.0.0.0:*    users:(("nginx",pid=1361,fd=5),("nginx",pid=1360,fd=5),("nginx",pid=722,fd=5))
+LISTEN 0      200        127.0.0.1:5432      0.0.0.0:*    users:(("postgres",pid=3471,fd=7))                                            
+LISTEN 0      200            [::1]:5432         [::]:*    users:(("postgres",pid=3471,fd=6))                                            
+LISTEN 0      511                *:3000            *:*    users:(("node",pid=1298,fd=18))                                               
+LISTEN 0      511                *:3001            *:*    users:(("node",pid=1269,fd=18))                                               
+LISTEN 0      4096            [::]:22           [::]:*    users:(("sshd",pid=2724,fd=4),("systemd",pid=1,fd=85))                        
