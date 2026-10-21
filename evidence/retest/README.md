@@ -54,4 +54,21 @@ Las evidencias de red deben obtenerse de las VM y desde puntos de observación a
 
 ## Estado actual
 
-Actualizar este apartado después de ejecutar cada prueba. No marcar una evidencia como completada hasta haber guardado el resultado real.
+Las evidencias disponibles contienen resultados reales obtenidos entre el 20 y el
+21 de octubre de 2026:
+
+| Control | Evidencia | Estado observado |
+|---|---|---|
+| Puertos públicos e internos | `nmap_before.txt`, `nmap_after.txt` | PASS desde el punto de observación utilizado: 80 permanece accesible; 3000, 3001 y 5432 aparecen filtrados después del endurecimiento. |
+| Firewall | `ufw_status_numbered.txt` | PASS: política de entrada `deny`; 3000, 3001 y 5432 denegados; 80 permitido; SSH limitado a orígenes administrativos registrados. |
+| PostgreSQL | `pg_after.txt`, `ss_after.txt` | PASS: servicio activo y escucha únicamente en localhost. |
+| API publicada | `curl_api_external.txt` | PASS parcial: HTTP 200 a través de Nginx; el acceso directo al puerto 3001 agotó el tiempo de espera. La respuesta todavía muestra CORS `*`. |
+| Ruta oculta | `hidden_path_before.txt`, `hidden_path.txt` | PASS posterior: la solicitud a `/.git/config` pasó de servir contenido a devolver HTTP 403. |
+| Cabeceras | `headers_before.txt`, `headers_after.txt` | PASS posterior: desaparece la versión de Nginx y aparecen cabeceras defensivas. |
+| Rate limiting | `limit_req_after.txt` | PASS: 28 respuestas 200 y 12 respuestas 503 durante la prueba de ráfaga. |
+| HTTPS | `nmap_after.txt` | PENDIENTE: 443 aparece filtrado y no hay evidencia de TLS configurado. |
+
+La evidencia demuestra el comportamiento desde los puntos de observación usados; no
+permite afirmar que los puertos estén cerrados para todas las redes. La política CORS
+restringida queda pendiente de verificar en el despliegue, porque la respuesta externa
+observada aún incluye `Access-Control-Allow-Origin: *`.

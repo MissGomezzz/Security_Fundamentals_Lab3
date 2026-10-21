@@ -283,16 +283,15 @@ Estas limitaciones son intencionales y forman parte del Lab 3:
 
 - HTTP sin cifrar; no usar en producción.
 - Sin autenticación ni autorización.
-- CORS abierto en `alerts-api`.
-- Sin rate limiting ni protección anti-abuso.
+- El endpoint de API observado a través de Nginx todavía responde con `Access-Control-Allow-Origin: *`; la política CORS restringida del repositorio no quedó demostrada en el despliegue de la VM.
+- La limitación de solicitudes sí está configurada y fue observada en el retest, pero no sustituye autenticación ni una protección anti-abuso completa.
 - API pública con datos ficticios y endpoints de modificación.
 - Logs locales sin pipeline centralizado ni retención configurada.
 - Los placeholders de `.env.example` no son credenciales utilizables.
 
 Las mitigaciones de HTTPS y autenticación se implementarán en el Laboratorio 4. No usar este prototipo con datos personales, tokens, API keys o credenciales reales.
 
-
-## Evidencias de ejecución local 
+## Evidencias de ejecución local
 
 Los cambios del MVP se organizan en commits pequeños por slice funcional. Verificar la historia con:
 
@@ -300,31 +299,35 @@ Los cambios del MVP se organizan en commits pequeños por slice funcional. Verif
 git log --oneline --decorate -n 10
 ```
 
-Capturas y comandos verificables:
+La evidencia disponible en [`evidence/retest/local-validation.md`](evidence/retest/local-validation.md)
+documenta las pruebas locales de `alerts-api` en Windows. Se observaron los siguientes
+resultados:
 
-git status git log --oneline -5 find . -maxdepth 3 -type f python3 -m http.server 8080 curl -I http://localhost:8080 curl http://localhost:8080
-Deben demostrar:
+- PostgreSQL respondió en `localhost:5432` y `/health` devolvió HTTP 200 con
+  `database: "ok"`.
+- `GET /api/alerts` devolvió HTTP 200 y 20 alertas.
+- CORS restringido funcionó localmente: `http://localhost:3000` fue aceptado y
+  un origen no autorizado recibió HTTP 403.
+- La solicitud preflight respondió HTTP 204.
+- La comprobación de sintaxis `npm run check` terminó sin errores.
+- La validación local dejó pendientes la consistencia de cabeceras y el hecho de que
+  el proceso local escuchara en `0.0.0.0:3001`; esas pruebas no demuestran el estado
+  del firewall ni la exposición de la VM.
 
-- Que el repositorio fue clonado.
-- Que index.html existe.
-- Que la página funciona localmente.
-- Qué commit contiene la versión evaluada.
-- Código HTTP obtenido.
-- Fecha y hora de las pruebas.
+Las capturas históricas del frontend y del repositorio se conservan en
+[`assets/`](assets/), incluyendo el estado del repositorio, la ejecución local, las
+respuestas HTTP y la fecha de prueba.
 
+## Evidencias del servidor y Nginx
 
-## Evidencias del servidor y Ngnix
+La evidencia del servidor confirma que Nginx quedó activo y que la configuración
+pasó `sudo nginx -t`. Los archivos y capturas relevantes incluyen:
 
-hostname whoami pwd nginx -v systemctl status nginx --no-pager sudo nginx -t curl -I http://localhost
-Además:
-
-- Captura del navegador.
-- URL o dirección IP utilizada.
-- Código de respuesta HTTP.
-- Archivo de configuración de Nginx.
-- Permisos del directorio publicado.
-- Extracto de access.log.
-- Extracto de error.log.
+- [`nginx/muvautomation.conf`](nginx/muvautomation.conf) y
+  [`nginx/muvautomation-hardened.conf`](nginx/muvautomation-hardened.conf).
+- Las capturas de estado del servicio, publicación por navegador, configuración,
+  permisos, `access.log` y `error.log` en [`assets/`](assets/).
+- La prueba publicada de `GET /api/alerts` devolvió HTTP 200.
 
 No deben incluir contraseñas, tokens, llaves privadas ni secretos.
 
@@ -332,7 +335,19 @@ No deben incluir contraseñas, tokens, llaves privadas ni secretos.
 
 **Categorías STRIDE**: El uso de las categorías STRIDE está disponible en la siguiente [sección](risk-register.md).
 
-**Mitigación propuesta**: Esta será revisada más adelante. 
+**Mitigación propuesta y estado observado**:
+
+- Centralizar el acceso público en Nginx y bloquear el acceso externo directo a
+  frontend, API y PostgreSQL mediante UFW.
+- Mantener PostgreSQL escuchando en localhost y permitir SSH únicamente desde las
+  redes administrativas autorizadas.
+- Aplicar cabeceras defensivas, bloquear rutas ocultas y limitar solicitudes en Nginx.
+- Sustituir CORS abierto por una lista explícita de orígenes permitidos y verificar
+  el despliegue efectivo de esa política.
+- Implementar HTTPS antes de cualquier uso fuera del laboratorio.
+
+El detalle por riesgo, junto con la evidencia y el estado de cada control, está en
+[`risk-register.md`](risk-register.md).
 
 # Segunda parte Laboratorio - Arquitectura fortalecida
 
@@ -372,7 +387,28 @@ La configuración final depende de si los componentes están en una misma VM o e
 
 ### Estado de las validaciones
 
-Las pruebas locales permiten comprobar el comportamiento de la API, CORS, las respuestas de error y la configuración del código. Las pruebas de exposición de puertos, firewall y acceso desde una red externa requieren ejecutarse contra las VM correspondientes desde un equipo distinto.
+Las pruebas locales permiten comprobar el comportamiento de la API, CORS, las
+respuestas de error y la configuración del código. Las pruebas de exposición de
+puertos, firewall y acceso desde una red externa se ejecutaron contra la VM y están
+registradas en [`evidence/retest/`](evidence/retest/).
+
+Resultados observados del retest:
+
+| Control | Evidencia | Resultado |
+|---|---|---|
+| Acceso público por Nginx | `nmap_after.txt`, `curl_api_external.txt` | **PASS parcial:** HTTP/80 responde y la API publicada devuelve HTTP 200. |
+| Bloqueo de servicios internos | `nmap_after.txt`, `ufw_status_numbered.txt` | **PASS desde el punto de observación usado:** 3000, 3001 y 5432 aparecen filtrados; UFW los deniega. |
+| PostgreSQL | `pg_after.txt`, `ss_after.txt` | **PASS:** escucha en localhost y no se expone directamente por la red. |
+| Ruta oculta | `hidden_path.txt` | **PASS:** `/.git/config` devuelve HTTP 403. |
+| Cabeceras defensivas | `headers_after.txt` | **PASS:** se observan `server_tokens off`, `nosniff`, `DENY` y `no-referrer`. |
+| Limitación de solicitudes | `limit_req_after.txt` | **PASS:** 28 respuestas HTTP 200 y 12 respuestas HTTP 503 durante la ráfaga. |
+| CORS en el despliegue | `curl_api_external.txt` | **FAIL:** la respuesta publicada todavía contiene `Access-Control-Allow-Origin: *`. |
+| HTTPS | `nmap_after.txt` | **BLOCKED/PENDIENTE:** 443 aparece filtrado y no existe evidencia de TLS configurado. |
+
+El escaneo posterior también muestra SSH abierto. Esto es compatible con las reglas
+UFW observadas porque solo se permiten las redes administrativas registradas; no debe
+interpretarse como una exposición pública autorizada sin repetir la prueba desde una
+red no administrativa.
 
 No se considerará un control validado hasta disponer de evidencia del resultado observado.
 
